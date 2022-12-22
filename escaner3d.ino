@@ -22,6 +22,7 @@
   https://www.arduino.cc/en/Tutorial/BuiltInExamples/Button
 */
 #include <Servo.h>
+//agregar algo desde mac
 // constants won't change. They're used here to set pin numbers:
 const int Shutter1 = 17;  //In shield 4 
 const int Focus1 = ;  //In shield 5
