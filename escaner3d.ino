@@ -23,6 +23,8 @@
 */
 #include <Servo.h>
 #include <LiquidCrystal_I2C.h>
+
+#include <WiFi.h>
 //agregar algo desde mac
 //agrego algo en el pc
 // constants won't change. They're used here to set pin numbers:
@@ -44,13 +46,20 @@ const long paso = 200;
 const long potencia = 1000;
 static const int ServoPin =  13;      // the number of the Servo pin
 int stop = 90; // instruccion para que el servo se detenga
+/*
+const char* ssid     = "your-ssid";
+const char* password = "your-password";
 
+const char* host = "data.sparkfun.com";
+const char* streamId   = "....................";
+const char* privateKey = "....................";
 
+WiFiServer server(80);
+*/
 Servo servo1;
 
 // variables will change:
 int pasos = 10;
-int stop = 90;
 
 int buttonState1 = 0;
 int buttonState2 = 0;         // variable for reading the pushbutton status
@@ -60,6 +69,11 @@ int buttonState5 = 0;
 int buttonState6 = 0;
 
 void setup() {
+
+  //aquí empieza la función wifi
+  
+
+  //aquí termina la funcion wifi
   // initialize Servopin
   servo1.attach(ServoPin);    
 
@@ -85,6 +99,10 @@ void setup() {
   
 
 void loop() {
+/* //empieza wifi dentro del loop
+
+*///termina el wifi dentro del loop
+
   // read the state of the pushbutton value:
   buttonState1 = digitalRead(buttonPin1);
   buttonState2 = digitalRead(buttonPin2);
