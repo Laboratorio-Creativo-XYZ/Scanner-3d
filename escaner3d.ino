@@ -22,26 +22,27 @@
   https://www.arduino.cc/en/Tutorial/BuiltInExamples/Button
 */
 #include <Servo.h>
+#include <LiquidCrystal_I2C.h>
 //agregar algo desde mac
 //agrego algo en el pc
 // constants won't change. They're used here to set pin numbers:
-const int Shutter1 = 17;  //In shield 4 
-const int Focus1 = ;  //In shield 5
-const int Shutter2 = ;  //In shield 6
-const int Focus2 = ;  //In shield 7
+const int Shutter1 = 16;  //In shield 4 
+const int Focus1 = 17;  //In shield 5
+const int Shutter2 = 18;  //In shield 6
+const int Focus2 = 19;//In shield 7
 const int buttonPin1 = 14;
-const int buttonPin2 = 25;
-const int buttonPin3 = 32;
-const int buttonPin4 = 26;
-const int buttonPin5 = ;
-const int buttonPin6 = ;     // the number of the pushbutton pin
-const int sda = ; //Pin salida SDA
-const int scl = ; //Pin salida SCL
+const int buttonPin2 = 27;
+const int buttonPin3 = 26;
+const int buttonPin4 = 25;
+const int buttonPin5 = 23;
+const int buttonPin6 = 32;     // the number of the pushbutton pin
+const int sda = 21; //Pin salida SDA = GPIO 21 (G21)
+const int scl = 22; //Pin salida SCL = GPIO 22 (G22)
 const long previousMillis = 0;
 const long interval = 500;
 const long paso = 200;
 const long potencia = 1000;
-static const int ServoPin =  27;      // the number of the Servo pin
+static const int ServoPin =  13;      // the number of the Servo pin
 int stop = 90; // instruccion para que el servo se detenga
 
 
@@ -59,7 +60,7 @@ int buttonState5 = 0;
 int buttonState6 = 0;
 
 void setup() {
-  // initialize the LED pin as an output:
+  // initialize Servopin
   servo1.attach(ServoPin);    
 
   // initialize the pushbutton pin as an input:
@@ -69,10 +70,16 @@ void setup() {
   pinMode(buttonPin4, INPUT);
   pinMode(buttonPin5, INPUT);
   pinMode(buttonPin6, INPUT);
+
+  //Initialize Shutter & Focus Pins
+  
   pinMode(Shutter1, OUTPUT);
   pinMode(Focus1, OUTPUT);
   pinMode(Shutter2, OUTPUT);
   pinMode(Focus2, OUTPUT);
+
+  //Initialize SDA & SCL I2C Interface
+
 
   }
   
