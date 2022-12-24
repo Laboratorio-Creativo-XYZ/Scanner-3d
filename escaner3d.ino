@@ -22,6 +22,7 @@
   https://www.arduino.cc/en/Tutorial/BuiltInExamples/Button
 */
 #include <Servo.h>
+#include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 
 #include <WiFi.h>
@@ -32,12 +33,12 @@ const int Shutter1 = 16;  //In shield 4
 const int Focus1 = 17;  //In shield 5
 const int Shutter2 = 18;  //In shield 6
 const int Focus2 = 19;//In shield 7
-const int buttonPin1 = 14;
-const int buttonPin2 = 27;
-const int buttonPin3 = 26;
-const int buttonPin4 = 25;
-const int buttonPin5 = 23;
-const int buttonPin6 = 32;     // the number of the pushbutton pin
+const int decButton = 14;
+const int incButton = 27;
+const int leftButton = 26;
+const int rightButton = 25;
+const int playButton = 23;
+const int stopButton = 32;     // the number of the pushbutton pin
 const int sda = 21; //Pin salida SDA = GPIO 21 (G21)
 const int scl = 22; //Pin salida SCL = GPIO 22 (G22)
 const long previousMillis = 0;
@@ -45,7 +46,33 @@ const long interval = 500;
 const long paso = 200;
 const long potencia = 1000;
 static const int ServoPin =  13;      // the number of the Servo pin
-int stop = 90; // instruccion para que el servo se detenga
+const int stop = 90; // instruccion para que el servo se detenga
+int numerodefotos = 100;
+
+LiquidCrystal_I2C lcd(0x27,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
+
+
+byte fotos[] = {
+  B00000,
+  B00010,
+  B11111,
+  B10001,
+  B10101,
+  B10001,
+  B11111,
+  B00000
+};
+
+byte num[] = {
+  B00011,
+  B00011,
+  B00000,
+  B10010,
+  B11010,
+  B10110,
+  B10010,
+  B10010
+};
 /*
 const char* ssid     = "your-ssid";
 const char* password = "your-password";
@@ -69,21 +96,31 @@ int buttonState5 = 0;
 int buttonState6 = 0;
 
 void setup() {
+//aquí empieza funcion iniciar LCD
+  lcd.begin(21, 22);                      // initialize the lcd 
+  // Print a message to the LCD.
+  lcd.backlight();
+  lcd.setCursor(0,0);
+  lcd.print("SCANNER 3D");
+  lcd.setCursor(0,1);
+  lcd.print("LABORATORIO CREATIVO");
+//aquí termina función iniciar LCD
+
 
   //aquí empieza la función wifi
   
 
   //aquí termina la funcion wifi
-  // initialize Servopin
-  servo1.attach(ServoPin);    
+  
+  servo1.attach(ServoPin);    // initialize Servopin
 
   // initialize the pushbutton pin as an input:
-  pinMode(buttonPin1, INPUT);
-  pinMode(buttonPin2, INPUT);
-  pinMode(buttonPin3, INPUT);
-  pinMode(buttonPin4, INPUT);
-  pinMode(buttonPin5, INPUT);
-  pinMode(buttonPin6, INPUT);
+  pinMode(decButton, INPUT);
+  pinMode(incButton, INPUT);
+  pinMode(leftButton, INPUT);
+  pinMode(rightButton, INPUT);
+  pinMode(playButton, INPUT);
+  pinMode(stopButton, INPUT);
 
   //Initialize Shutter & Focus Pins
   
@@ -104,12 +141,12 @@ void loop() {
 *///termina el wifi dentro del loop
 
   // read the state of the pushbutton value:
-  buttonState1 = digitalRead(buttonPin1);
-  buttonState2 = digitalRead(buttonPin2);
-  buttonState3 = digitalRead(buttonPin3);
-  buttonState4 = digitalRead(buttonPin1);
-  buttonState5 = digitalRead(buttonPin2);
-  buttonState6 = digitalRead(buttonPin3);
+  buttonState1 = digitalRead(decButton);
+  buttonState2 = digitalRead(incButton);
+  buttonState3 = digitalRead(leftButton);
+  buttonState4 = digitalRead(rightButton);
+  buttonState5 = digitalRead(playButton);
+  buttonState6 = digitalRead(stopButton);
 
   if (buttonState2 == LOW){
      
