@@ -1,5 +1,7 @@
 /*
-  Button
+  Basado en parto del ejemplo 
+  
+  Button by DojoDave
 
   Turns on and off a light emitting diode(LED) connected to digital pin 13,
   when pressing a pushbutton attached to pin 2.
@@ -25,9 +27,8 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 
-#include <WiFi.h>
-//agregar algo desde mac
-//agrego algo en el pc
+//#include <WiFi.h>
+
 // constants won't change. They're used here to set pin numbers:
 const int Shutter1 = 16;  //In shield 4 
 const int Focus1 = 17;  //In shield 5
@@ -50,6 +51,15 @@ const int stop = 90; // instruccion para que el servo se detenga
 int numerodefotos = 100;
 
 LiquidCrystal_I2C lcd(0x27,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
+
+//aquí empiezan las strings para reproducir en pantalla
+String messageStatic = "Scanner 3D";
+String messageToScroll = "Laboratorio Creativo XYZ.    Laboratorio Creativo XYZ.     Laboratorio Creativo XYZ.    Laboratorio Creativo XYZ";
+String nFotos = "Capturas:";
+String Velocidad ="Velocidad:";
+String Camara ="Camara:";
+
+//aquí terminan
 
 
 byte fotos[] = {
@@ -88,12 +98,12 @@ Servo servo1;
 // variables will change:
 int pasos = 10;
 
-int buttonState1 = 0;
-int buttonState2 = 0;         // variable for reading the pushbutton status
-int buttonState3 = 0;
-int buttonState4 = 0;
-int buttonState5 = 0;
-int buttonState6 = 0;
+int buttonStateDec = 0;
+int buttonStateInc = 0;         // variable for reading the pushbutton status
+int buttonStateLeft = 0;
+int buttonStateRight = 0;
+int buttonStatePlay = 0;
+int buttonStateStop = 0;
 
 void setup() {
 //aquí empieza funcion iniciar LCD
@@ -141,21 +151,25 @@ void loop() {
 *///termina el wifi dentro del loop
 
   // read the state of the pushbutton value:
-  buttonState1 = digitalRead(decButton);
-  buttonState2 = digitalRead(incButton);
-  buttonState3 = digitalRead(leftButton);
-  buttonState4 = digitalRead(rightButton);
-  buttonState5 = digitalRead(playButton);
-  buttonState6 = digitalRead(stopButton);
+  buttonStateDec = digitalRead(decButton);
+  buttonStateInc = digitalRead(incButton);
+  buttonStateLeft = digitalRead(leftButton);
+  buttonStateRight = digitalRead(rightButton);
+  buttonStatePlay = digitalRead(playButton);
+  buttonStateStop = digitalRead(stopButton);
 
-  if (buttonState2 == LOW){
+    if (buttonStateStop == LOW){
+    servo1.write(stop);
+  }
+
+  if (buttonStateInc == LOW){
      
     servo1.write(40);
     delay(1000);
     servo1.write(stop);
   }
 
-  if (buttonState3 == LOW){
+  if (buttonStateLeft == LOW){
      
     servo1.write(200);
     delay(1000);
@@ -163,7 +177,7 @@ void loop() {
   }
 
   // check if the pushbutton is pressed. If it is, the buttonState is HIGH:
-  if (buttonState1 == LOW) {
+  if (buttonStateDec == LOW) {
     // turn LED on:
       for(int i = 1; i <= pasos; i++){
       //servo1.attach(ServoPin);    
