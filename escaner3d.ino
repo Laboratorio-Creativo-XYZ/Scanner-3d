@@ -111,6 +111,34 @@ void scrollText(int row, String message, int delayTime, int lcdColumns) {
 }
 //Aquí termina la función ScrollText
 
+//Aquí empieza la función waitForMillis
+void waitForMillis(unsigned long millis) {
+  unsigned long start = millis();
+  while (millis() - start < millis) {
+    // Do nothing
+  }
+}
+//Aquí termina waitForMillis
+
+//Aquí empieza la función startScan
+void startScan()
+      for(int i = 0; i <= numerodefotos; i++){   
+      servo1.write(potencia);
+      waitForMillis(paso);
+      servo1.write(stop);
+      waitForMillis(interval);
+      digitalWrite(Shutter1, HIGH);
+      waitForMillis(100);
+      digitalWrite(Shutter1, LOW);
+      waitForMillis(interval);
+          if (buttonStateStop == LOW){
+    break;     // Button was pressed, stop the loop
+  }
+}
+
+//Aquí termina la función startScan
+
+
 void setup() {
 //aquí empieza funcion iniciar LCD
   lcd.begin(21, 22);                      // initialize the lcd 
@@ -168,6 +196,7 @@ void loop() {
   buttonStateRight = digitalRead(rightButton);
   buttonStatePlay = digitalRead(playButton);
   buttonStateStop = digitalRead(stopButton);
+  buttonStateStop2 = digitalRead(stopButton2);
 
     if (buttonStateStop == LOW){
     servo1.write(stop);
@@ -176,31 +205,30 @@ void loop() {
   if (buttonStateInc == LOW){
      
     servo1.write(40);
-    delay(1000);
+    waitForMillis(1000);
     servo1.write(stop);
   }
 
   if (buttonStateLeft == LOW){
      
     servo1.write(200);
-    delay(1000);
+    waitForMillis(1000);
     servo1.write(stop);
   }
 
   // check if the pushbutton is pressed. If it is, the buttonState is HIGH:
   if (buttonStateDec == LOW) {
-    // turn LED on:
-      for(int i = 0; i <= numerodefotos; i++){
-      //servo1.attach(ServoPin);    
+    
+      for(int i = 0; i <= numerodefotos; i++){   
       servo1.write(potencia);
-      delay(paso);
+      waitForMillis(paso);
       servo1.write(stop);
-      delay(interval);
+      waitForMillis(interval);
       digitalWrite(Shutter1, HIGH);
-      delay(100);
+      waitForMillis(100);
       digitalWrite(Shutter1, LOW);
-      delay(interval);
+      waitForMillis(interval);
       
-      //analogWrite(PWMpin, i);
     }
-  }}
+  }
+}
