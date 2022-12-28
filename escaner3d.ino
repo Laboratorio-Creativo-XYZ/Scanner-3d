@@ -1,25 +1,12 @@
 /*
-  Basado en parto del ejemplo 
+  Basado en parte del ejemplo 
   
   Button by DojoDave
 
-  Turns on and off a light emitting diode(LED) connected to digital pin 13,
-  when pressing a pushbutton attached to pin 2.
-
   The circuit:
-  - LED attached from pin 13 to ground through 220 ohm resistor
   - pushbutton attached to pin 2 from +5V
   - 10K resistor attached to pin 2 from ground
 
-  - Note: on most Arduinos there is already an LED on the board
-    attached to pin 13.
-
-  created 2005
-  by DojoDave <http://www.0j0.org>
-  modified 30 Aug 2011
-  by Tom Igoe
-
-  This example code is in the public domain.
 
   https://www.arduino.cc/en/Tutorial/BuiltInExamples/Button
 */
@@ -39,7 +26,8 @@ const int incButton = 27;
 const int leftButton = 26;
 const int rightButton = 25;
 const int playButton = 23;
-const int stopButton = 32;     // the number of the pushbutton pin
+const int stopButton = 32;
+const int stopButton2 = 35;     // the number of the pushbutton pin
 const int sda = 21; //Pin salida SDA = GPIO 21 (G21)
 const int scl = 22; //Pin salida SCL = GPIO 22 (G22)
 const long previousMillis = 0;
@@ -107,6 +95,7 @@ int buttonStateLeft = 0;
 int buttonStateRight = 0;
 int buttonStatePlay = 0;
 int buttonStateStop = 0;
+int buttonStateStop2 = 0;
 
 //aquí empieza la función ScollText
 void scrollText(int row, String message, int delayTime, int lcdColumns) {
@@ -149,6 +138,7 @@ void setup() {
   pinMode(rightButton, INPUT);
   pinMode(playButton, INPUT);
   pinMode(stopButton, INPUT);
+  pinMode(stopButton2, INPUT);
 
   //Initialize Shutter & Focus Pins
   
