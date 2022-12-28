@@ -48,17 +48,20 @@ const long paso = 200;
 const long potencia = 1000;
 static const int ServoPin =  13;      // the number of the Servo pin
 const int stop = 90; // instruccion para que el servo se detenga
-int numerodefotos = 100;
+int numerodefotos = 10;
 
-LiquidCrystal_I2C lcd(0x27,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
+int lcdColumns = 16;// set the LCD number of columns and rows
+int lcdRows = 4;
+
+LiquidCrystal_I2C lcd(0x27,lcdColumns,lcdRows);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 
 //aquí empiezan las strings para reproducir en pantalla
 String messageStatic = "Scanner 3D";
-String messageToScroll = "Laboratorio Creativo XYZ.    Laboratorio Creativo XYZ.     Laboratorio Creativo XYZ.    Laboratorio Creativo XYZ";
+String messageToScroll = "Laboratorio Creativo XYZ.";
 String nFotos = "Capturas:";
 String Velocidad ="Velocidad:";
 String Camara ="Camara:";
-
+String numstrFoto = String(numerodefotos);
 //aquí terminan
 
 
@@ -96,7 +99,7 @@ WiFiServer server(80);
 Servo servo1;
 
 // variables will change:
-int pasos = 10;
+
 
 int buttonStateDec = 0;
 int buttonStateInc = 0;         // variable for reading the pushbutton status
@@ -105,15 +108,30 @@ int buttonStateRight = 0;
 int buttonStatePlay = 0;
 int buttonStateStop = 0;
 
+//aquí empieza la función ScollText
+void scrollText(int row, String message, int delayTime, int lcdColumns) {
+  for (int i=0; i < lcdColumns; i++) {
+    message = " " + message;  
+  } 
+  message = message + " "; 
+  for (int pos = 0; pos < message.length(); pos++) {
+    lcd.setCursor(0, row);
+    lcd.print(message.substring(pos, pos + lcdColumns));
+    delay(delayTime);
+  }
+}
+//Aquí termina la función ScrollText
+
 void setup() {
 //aquí empieza funcion iniciar LCD
   lcd.begin(21, 22);                      // initialize the lcd 
   // Print a message to the LCD.
   lcd.backlight();
-  lcd.setCursor(0,0);
-  lcd.print("SCANNER 3D");
-  lcd.setCursor(0,1);
-  lcd.print("LABORATORIO CREATIVO");
+  lcd.setCursor(0, 0);
+  // print static message
+  lcd.print(messageStatic);
+  // print scrolling message
+  scrollText(1, messageToScroll, 500, lcdColumns);
 //aquí termina función iniciar LCD
 
 
@@ -141,7 +159,10 @@ void setup() {
 
   //Initialize SDA & SCL I2C Interface
 
-
+  lcd.setCursor(0, 1);
+  lcd.print(nFotos);
+  lcd.setCursor(9, 1);
+  lcd.print(numstrFoto);
   }
   
 
@@ -149,7 +170,7 @@ void loop() {
 /* //empieza wifi dentro del loop
 
 *///termina el wifi dentro del loop
-
+ 
   // read the state of the pushbutton value:
   buttonStateDec = digitalRead(decButton);
   buttonStateInc = digitalRead(incButton);
@@ -179,7 +200,7 @@ void loop() {
   // check if the pushbutton is pressed. If it is, the buttonState is HIGH:
   if (buttonStateDec == LOW) {
     // turn LED on:
-      for(int i = 1; i <= pasos; i++){
+      for(int i = 0; i <= numerodefotos; i++){
       //servo1.attach(ServoPin);    
       servo1.write(potencia);
       delay(paso);
@@ -188,7 +209,7 @@ void loop() {
       digitalWrite(Shutter1, HIGH);
       delay(100);
       digitalWrite(Shutter1, LOW);
-      delay(400);
+      delay(interval);
       
       //analogWrite(PWMpin, i);
     }
