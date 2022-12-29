@@ -13,21 +13,21 @@
 #include <Servo.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
-
+#include <ezButton.h>
 //#include <WiFi.h>
 
 // constants won't change. They're used here to set pin numbers:
-const int Shutter1 = 16;  //In shield 4 
-const int Focus1 = 17;  //In shield 5
-const int Shutter2 = 18;  //In shield 6
-const int Focus2 = 19;//In shield 7
-const int decButton = 14;
-const int incButton = 27;
-const int leftButton = 26;
-const int rightButton = 25;
-const int playButton = 23;
-const int stopButton = 32;
-const int stopButton2 = 35;     // the number of the pushbutton pin
+const int Shutter1 = 15;  //In shield 4 
+const int Focus1 = 16;  //In shield 5
+const int Shutter2 = 17;  //In shield 6
+const int Focus2 = 18;//In shield 7
+ezButton decButton(12);
+ezButton incButton(14);
+ezButton leftButton(27);
+ezButton rightButton(26);
+ezButton playButton(25);
+ezButton stopButton(32);
+ezButton stopButton2(19);     // the number of the pushbutton pin
 const int sda = 21; //Pin salida SDA = GPIO 21 (G21)
 const int scl = 22; //Pin salida SCL = GPIO 22 (G22)
 const long previousMillis = 0;
@@ -106,40 +106,42 @@ void scrollText(int row, String message, int delayTime, int lcdColumns) {
   for (int pos = 0; pos < message.length(); pos++) {
     lcd.setCursor(0, row);
     lcd.print(message.substring(pos, pos + lcdColumns));
-    waitForMillis(delayTime);
+    delay(delayTime);
   }
 }
 //Aquí termina la función ScrollText
 
-//Aquí empieza la función waitForMillis
+/*/Aquí empieza la función waitForMillis
 void waitForMillis(unsigned long millis) {
   unsigned long start = millis();
   while (millis() - start < millis) {
     // Do nothing
   }
 }
-//Aquí termina waitForMillis
+*///Aquí termina waitForMillis
 
-//Aquí empieza la función startScan
+/*/Aquí empieza la función startScan
 void startScan() {
       for(int i = 0; i <= numerodefotos; i++){   
       servo1.write(potencia);
-      waitForMillis(paso);
+      delay(paso);
       servo1.write(stop);
-      waitForMillis(interval);
+      delay(interval);
       digitalWrite(Shutter1, HIGH);
-      waitForMillis(100);
+      delay(100);
       digitalWrite(Shutter1, LOW);
-      waitForMillis(interval);
+      delay(interval);
           if (buttonStateStop == HIGH){
     break;     // Button was pressed, stop the loop
   }
+  delay(5000);
 }
-
-//Aquí termina la función startScan
+}
+*///Aquí termina la función startScan
 
 
 void setup() {
+  Serial.begin(19200);
 //aquí empieza funcion iniciar LCD
   lcd.begin(21, 22);                      // initialize the lcd 
   // Print a message to the LCD.
@@ -159,7 +161,7 @@ void setup() {
   
   servo1.attach(ServoPin);    // initialize Servopin
 
-  // initialize the pushbutton pin as an input:
+  /*// initialize the pushbutton pin as an input:
   pinMode(decButton, INPUT);
   pinMode(incButton, INPUT);
   pinMode(leftButton, INPUT);
@@ -167,7 +169,7 @@ void setup() {
   pinMode(playButton, INPUT);
   pinMode(stopButton, INPUT);
   pinMode(stopButton2, INPUT);
-
+*/
   //Initialize Shutter & Focus Pins
   
   pinMode(Shutter1, OUTPUT);
@@ -185,11 +187,44 @@ void setup() {
   
 
 void loop() {
+  decButton.loop(); // MUST call the loop() function first
+    incButton.loop(); // MUST call the loop() function first
+      leftButton.loop(); // MUST call the loop() function first
+        rightButton.loop(); // MUST call the loop() function first
+          playButton.loop(); // MUST call the loop() function first
+            stopButton.loop(); // MUST call the loop() function first
+              stopButton2.loop(); // MUST call the loop() function first
 /* //empieza wifi dentro del loop
 
 *///termina el wifi dentro del loop
  
   // read the state of the pushbutton value:
+  int DecbtnState = decButton.getState();
+  Serial.println(DecbtnState);
+    Serial.println("DEC");
+  int IncbtnState = incButton.getState();
+  Serial.println(IncbtnState);
+   Serial.println("INC");
+  int LeftbtnState = leftButton.getState();
+  Serial.println(LeftbtnState);
+   Serial.println("LEFT");
+  int RightbtnState = rightButton.getState();
+  Serial.println(RightbtnState);
+   Serial.println("RIGHT");
+  int PlaybtnState = playButton.getState();
+  Serial.println(PlaybtnState);
+   Serial.println("PLAY");
+  int StopbtnState = stopButton.getState();
+  Serial.println(StopbtnState);
+   Serial.println("STOP");
+  int Stop2btnState = stopButton2.getState();
+  Serial.println(Stop2btnState);
+   Serial.println("STOP2");
+
+
+
+
+/*
   buttonStateDec = digitalRead(decButton);
   buttonStateInc = digitalRead(incButton);
   buttonStateLeft = digitalRead(leftButton);
@@ -197,38 +232,47 @@ void loop() {
   buttonStatePlay = digitalRead(playButton);
   buttonStateStop = digitalRead(stopButton);
   buttonStateStop2 = digitalRead(stopButton2);
-
-    if (buttonStateStop == LOW){
+*/
+    if (StopbtnState == 0){
     servo1.write(stop);
   }
 
-  if (buttonStateInc == LOW){
+  if (IncbtnState == 0){
      
     servo1.write(40);
-    waitForMillis(1000);
+    delay(1000);
     servo1.write(stop);
   }
 
-  if (buttonStateLeft == LOW){
+  if (LeftbtnState == 0){
      
     servo1.write(200);
-    waitForMillis(1000);
+    delay(1000);
     servo1.write(stop);
   }
 
   // check if the pushbutton is pressed. If it is, the buttonState is HIGH:
-  if (buttonStateDec == LOW) {
+  if (PlaybtnState == 0) {
     
-      for(int i = 0; i <= numerodefotos; i++){   
+      for(int i = 1; i <= numerodefotos; i++){   
       servo1.write(potencia);
-      waitForMillis(paso);
+      delay(paso);
       servo1.write(stop);
-      waitForMillis(interval);
+      delay(interval);
       digitalWrite(Shutter1, HIGH);
-      waitForMillis(100);
+      delay(100);
       digitalWrite(Shutter1, LOW);
-      waitForMillis(interval);
-      
+      delay(interval);
+        stopButton.loop(); // MUST call the loop() function first
+        int StopbtnState = stopButton.getState();
+        //Serial.println(StopbtnState);
+        //Serial.println("STOP");
+        if (StopbtnState == 0){
+    break;     // Button was pressed, stop the loop
     }
+  }
+  /*if (buttonStatePlay == LOW){
+    startScan();
+  }*/
   }
 }
