@@ -106,7 +106,7 @@ void scrollText(int row, String message, int delayTime, int lcdColumns) {
   for (int pos = 0; pos < message.length(); pos++) {
     lcd.setCursor(0, row);
     lcd.print(message.substring(pos, pos + lcdColumns));
-    delay(delayTime);
+    waitForMillis(delayTime);
   }
 }
 //Aquí termina la función ScrollText
@@ -121,7 +121,7 @@ void waitForMillis(unsigned long millis) {
 //Aquí termina waitForMillis
 
 //Aquí empieza la función startScan
-void startScan()
+void startScan() {
       for(int i = 0; i <= numerodefotos; i++){   
       servo1.write(potencia);
       waitForMillis(paso);
@@ -131,7 +131,7 @@ void startScan()
       waitForMillis(100);
       digitalWrite(Shutter1, LOW);
       waitForMillis(interval);
-          if (buttonStateStop == LOW){
+          if (buttonStateStop == HIGH){
     break;     // Button was pressed, stop the loop
   }
 }
