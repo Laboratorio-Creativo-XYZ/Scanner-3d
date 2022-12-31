@@ -142,7 +142,6 @@ void startScan() {
 }
 *///Aquí termina la función startScan
 
-
 void setup() {
   Serial.begin(19200);
 //aquí empieza funcion iniciar LCD
@@ -180,8 +179,6 @@ void setup() {
   pinMode(Shutter2, OUTPUT);
   pinMode(Focus2, OUTPUT);
 
-  //Initialize SDA & SCL I2C Interface
-
   lcd.setCursor(0, 1);
   lcd.print(nFotos);
   lcd.setCursor(9, 1);
@@ -190,7 +187,6 @@ void setup() {
   lcd.print(360);
   }
   
-
 void loop() {
   decButton.loop(); // MUST call the loop() function first
     incButton.loop(); // MUST call the loop() function first
@@ -199,6 +195,7 @@ void loop() {
           playButton.loop(); // MUST call the loop() function first
             stopButton.loop(); // MUST call the loop() function first
               stopButton2.loop(); // MUST call the loop() function first
+
 /* //empieza wifi dentro del loop
 
 *///termina el wifi dentro del loop
@@ -248,19 +245,17 @@ void loop() {
   }
 
   if (LeftbtnState == 0){
-     
       recorridototal++;
       lcd.setCursor(6, 2);
       lcd.print(recorridototalstr);
   }
 
   if (RighttbtnState == 0){
-     
       recorridototal--;
       lcd.setCursor(9, 2);
       lcd.print(recorridototalstr);
   }
-  // check if the pushbutton is pressed. If it is, the buttonState is HIGH:
+
   if (PlaybtnState == 0) {
     
       for(int i = 1; i <= numerodefotos; i++){   
@@ -272,16 +267,11 @@ void loop() {
       delay(100);
       digitalWrite(Shutter1, LOW);
       delay(interval);
-        stopButton.loop(); // MUST call the loop() function first
+        stopButton.loop();
         int StopbtnState = stopButton.getState();
-        //Serial.println(StopbtnState);
-        //Serial.println("STOP");
         if (StopbtnState == 0){
     break;     // Button was pressed, stop the loop
     }
   }
-  /*if (buttonStatePlay == LOW){
-    startScan();
-  }*/
   }
 }
