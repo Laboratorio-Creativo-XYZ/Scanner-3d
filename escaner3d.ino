@@ -245,13 +245,13 @@ void loop() {
   }
 
   if (LeftbtnState == 0){
-      recorridototal++;
+      recorridototal+=100;
       lcd.setCursor(6, 2);
       lcd.print(recorridototalstr);
   }
 
   if (RighttbtnState == 0){
-      recorridototal--;
+      recorridototal-=100;
       lcd.setCursor(9, 2);
       lcd.print(recorridototalstr);
   }
