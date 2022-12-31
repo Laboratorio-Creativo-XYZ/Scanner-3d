@@ -34,10 +34,12 @@ const long interval = 500;//cuanto espera antes de tomar la foto
 const int lcdColumns = 16;//set the LCD number of columns
 const int lcdRows = 4;//set the LCD number of rows
 const long potencia = 1000;//potencia para activar el servo
-static const int ServoPin =  13;// the number of the Servo pin
+const int ServoPin =  13;// the number of the Servo pin
 const int stop = 90; // instruccion para que el servo se detenga
+
 int numerodefotos = 10;
-int recorrido = 2000 / numerodefotos;
+int recorridototal = 2000;
+int recorrido = recorridototal / numerodefotos;
 long previousMillis = 0;
 
 LiquidCrystal_I2C lcd(0x27,lcdColumns,lcdRows);  // set the LCD address to 0x27 for a 16 chars and 2 line display
@@ -48,7 +50,9 @@ String messageToScroll = "Laboratorio Creativo XYZ.";
 String nFotos = "Capturas:";
 String Velocidad ="Velocidad:";
 String Camara ="Camara:";
+String 360 ="360º=";
 String numstrFoto = String(numerodefotos);
+String recorridototalstr = String(recorridototal);
 //aquí terminan
 
 
@@ -182,6 +186,8 @@ void setup() {
   lcd.print(nFotos);
   lcd.setCursor(9, 1);
   lcd.print(numstrFoto);
+  lcd.setCursor(0, 2);
+  lcd.print(360);
   }
   
 
@@ -220,9 +226,6 @@ void loop() {
   Serial.println(Stop2btnState);
    Serial.println("STOP2");
 
-
-
-
 /*
   buttonStateDec = digitalRead(decButton);
   buttonStateInc = digitalRead(incButton);
@@ -232,7 +235,7 @@ void loop() {
   buttonStateStop = digitalRead(stopButton);
   buttonStateStop2 = digitalRead(stopButton2);
 */
-    if (IncbtnState == 0){
+  if (IncbtnState == 0){
       numerodefotos++;
       lcd.setCursor(9, 1);
   lcd.print(numstrFoto);
@@ -240,22 +243,22 @@ void loop() {
 
   if (DecbtnState == 0){
       numerodefotos--;
-      lcd.setCursor(9, 1);
+      lcd.setCursor(6, 1);
   lcd.print(numstrFoto);
   }
 
   if (LeftbtnState == 0){
      
-    servo1.write(200);
-    delay(1000);
-    servo1.write(stop);
+      recorridototal++;
+      lcd.setCursor(6, 2);
+      lcd.print(recorridototalstr);
   }
 
   if (RighttbtnState == 0){
      
-    servo1.write(40);
-    delay(1000);
-    servo1.write(stop);
+      recorridototal--;
+      lcd.setCursor(9, 2);
+      lcd.print(recorridototalstr);
   }
   // check if the pushbutton is pressed. If it is, the buttonState is HIGH:
   if (PlaybtnState == 0) {
