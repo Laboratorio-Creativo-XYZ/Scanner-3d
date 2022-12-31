@@ -30,16 +30,15 @@ ezButton stopButton(32);
 ezButton stopButton2(19);     // the number of the pushbutton pin
 const int sda = 21; //Pin salida SDA = GPIO 21 (G21)
 const int scl = 22; //Pin salida SCL = GPIO 22 (G22)
-const long previousMillis = 0;
-const long interval = 500;
-const long paso = 200;
-const long potencia = 1000;
-static const int ServoPin =  13;      // the number of the Servo pin
+const long interval = 500;//cuanto espera antes de tomar la foto
+const int lcdColumns = 16;//set the LCD number of columns
+const int lcdRows = 4;//set the LCD number of rows
+const long potencia = 1000;//potencia para activar el servo
+static const int ServoPin =  13;// the number of the Servo pin
 const int stop = 90; // instruccion para que el servo se detenga
 int numerodefotos = 10;
-
-int lcdColumns = 16;// set the LCD number of columns and rows
-int lcdRows = 4;
+int recorrido = 2000 / numerodefotos;
+long previousMillis = 0;
 
 LiquidCrystal_I2C lcd(0x27,lcdColumns,lcdRows);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 
@@ -233,15 +232,16 @@ void loop() {
   buttonStateStop = digitalRead(stopButton);
   buttonStateStop2 = digitalRead(stopButton2);
 */
-    if (StopbtnState == 0){
-    servo1.write(stop);
+    if (IncbtnState == 0){
+      numerodefotos++;
+      lcd.setCursor(9, 1);
+  lcd.print(numstrFoto);
   }
 
-  if (IncbtnState == 0){
-     
-    servo1.write(40);
-    delay(1000);
-    servo1.write(stop);
+  if (DecbtnState == 0){
+      numerodefotos--;
+      lcd.setCursor(9, 1);
+  lcd.print(numstrFoto);
   }
 
   if (LeftbtnState == 0){
@@ -251,12 +251,18 @@ void loop() {
     servo1.write(stop);
   }
 
+  if (RighttbtnState == 0){
+     
+    servo1.write(40);
+    delay(1000);
+    servo1.write(stop);
+  }
   // check if the pushbutton is pressed. If it is, the buttonState is HIGH:
   if (PlaybtnState == 0) {
     
       for(int i = 1; i <= numerodefotos; i++){   
       servo1.write(potencia);
-      delay(paso);
+      delay(recorrido);
       servo1.write(stop);
       delay(interval);
       digitalWrite(Shutter1, HIGH);
