@@ -21,26 +21,25 @@ const int Shutter1 = 15;  //In shield 4
 const int Focus1 = 16;  //In shield 5
 const int Shutter2 = 17;  //In shield 6
 const int Focus2 = 18;//In shield 7
-ezButton decButton(12);
-ezButton incButton(14);
-ezButton leftButton(27);
-ezButton rightButton(26);
-ezButton playButton(25);
-ezButton stopButton(32);
-ezButton stopButton2(19);     // the number of the pushbutton pin
+ezButton decButton(12); //12
+ezButton incButton(14); //14
+ezButton leftButton(27); //27
+ezButton rightButton(26); //26
+ezButton playButton(25); //25
+ezButton stopButton(32); //32
+ezButton stopButton2(19); //19
 const int sda = 21; //Pin salida SDA = GPIO 21 (G21)
 const int scl = 22; //Pin salida SCL = GPIO 22 (G22)
 const long interval = 500;//cuanto espera antes de tomar la foto
-const int lcdColumns = 16;//set the LCD number of columns
+const int lcdColumns = 20;//set the LCD number of columns
 const int lcdRows = 4;//set the LCD number of rows
-const long potencia = 1000;//potencia para activar el servo
+const long potencia = 2000;//potencia para activar el servo
 const int ServoPin =  13;// the number of the Servo pin
 const int stop = 90; // instruccion para que el servo se detenga
 
 int numerodefotos = 10;
-int recorridototal = 2000;
+int recorridototal = 16250;
 int recorrido = recorridototal / numerodefotos;
-long previousMillis = 0;
 
 LiquidCrystal_I2C lcd(0x27,lcdColumns,lcdRows);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 
@@ -50,7 +49,7 @@ String messageToScroll = "Laboratorio Creativo XYZ.";
 String nFotos = "Capturas:";
 String Velocidad ="Velocidad:";
 String Camara ="Camara:";
-String 360 ="360º=";
+String tressesenta ="360=";
 String numstrFoto = String(numerodefotos);
 String recorridototalstr = String(recorridototal);
 //aquí terminan
@@ -184,10 +183,15 @@ void setup() {
   lcd.setCursor(9, 1);
   lcd.print(numstrFoto);
   lcd.setCursor(0, 2);
-  lcd.print(360);
+  lcd.print(tressesenta);
+  lcd.setCursor(5, 2);
+  lcd.print(recorridototal);
+  lcd.setCursor(5, 3);
+  lcd.print(recorrido);
   }
   
 void loop() {
+ int recorrido = recorridototal / numerodefotos;
   decButton.loop(); // MUST call the loop() function first
     incButton.loop(); // MUST call the loop() function first
       leftButton.loop(); // MUST call the loop() function first
@@ -234,26 +238,54 @@ void loop() {
 */
   if (IncbtnState == 0){
       numerodefotos++;
+      delay(300);
       lcd.setCursor(9, 1);
-  lcd.print(numstrFoto);
+        if (numerodefotos < 10) {
+        lcd.print("0");
+      }
+      lcd.print(numerodefotos);
   }
 
   if (DecbtnState == 0){
       numerodefotos--;
-      lcd.setCursor(6, 1);
-  lcd.print(numstrFoto);
+            if (numerodefotos <= 1) {
+              numerodefotos = 1;
+            }
+      delay(300);
+      lcd.setCursor(9, 1);
+        if (numerodefotos < 10) {
+        lcd.print("0");
+      }
+      lcd.print(numerodefotos);
   }
 
   if (LeftbtnState == 0){
-      recorridototal+=100;
-      lcd.setCursor(6, 2);
-      lcd.print(recorridototalstr);
+      recorridototal-=10;
+            if (recorridototal <= 0) {
+              recorridototal = 0;
+            }
+      delay(300);
+      lcd.setCursor(5, 2);
+        if (recorridototal < 1000) {
+          lcd.print("0");
+            if (recorridototal < 100) {
+            lcd.print("0");
+          }
+        }
+      lcd.print(recorridototal);
   }
 
-  if (RighttbtnState == 0){
-      recorridototal-=100;
-      lcd.setCursor(9, 2);
-      lcd.print(recorridototalstr);
+  if (RightbtnState == 0){
+      recorridototal+=10;
+      delay(300);
+      lcd.setCursor(5, 2);
+        if (recorridototal < 1000) {
+          lcd.print("0");
+            if (recorridototal < 100) {
+            lcd.print("0");
+          }
+        }
+      lcd.print(recorridototal);
   }
 
   if (PlaybtnState == 0) {
@@ -270,8 +302,10 @@ void loop() {
         stopButton.loop();
         int StopbtnState = stopButton.getState();
         if (StopbtnState == 0){
-    break;     // Button was pressed, stop the loop
-    }
+          break;     // Button was pressed, stop the loop
+        }
+      }
   }
-  }
+  lcd.setCursor(5, 3);
+  lcd.print(recorrido);
 }
