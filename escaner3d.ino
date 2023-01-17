@@ -68,6 +68,18 @@ int buttonStateRight = 0;
 int buttonStatePlay = 0;
 int buttonStateStop = 0;
 
+void scrollText(int row, String message, int delayTime, int lcdColumns) {
+  for (int i=0; i < lcdColumns; i++) {
+    message = " " + message;  
+  } 
+  message = message + " "; 
+  for (int pos = 0; pos < message.length(); pos++) {
+    lcd.setCursor(0, row);
+    lcd.print(message.substring(pos, pos + lcdColumns));
+    delay(delayTime);
+  }
+}
+
 void setup() {
   stepper.setMaxSpeed(500);
   stepper.setAcceleration(100);
@@ -185,8 +197,11 @@ void loop() {
           lcd.print("0");
             if (recorridototal < 100) {
             lcd.print("0");
+              if (recorridototal < 10) {
+              lcd.print("0");
           }
         }
+      }
       lcd.print(recorridototal);
   }
 
@@ -199,8 +214,11 @@ void loop() {
           lcd.print("0");
             if (recorridototal < 100) {
             lcd.print("0");
+              if (recorridototal < 10) {
+              lcd.print("0");
           }
         }
+      }
       lcd.print(recorridototal);
   }
   if (StopbtnState == 0){
@@ -208,8 +226,12 @@ void loop() {
       }
   if (PlaybtnState == 0) {
     Serial.println("PLAY");
+        digitalWrite(Shutter1, HIGH);
+        delay(100);
+        digitalWrite(Shutter1, LOW);
+        delay(interval);
       for(int i = 1; i <= numerodefotos; i++){ 
-        Serial.println(i);  
+      Serial.println(i);  
       stepper.move(recorrido);
       stepper.runToPosition();
       delay(interval);
@@ -225,5 +247,14 @@ void loop() {
       }
   }
   lcd.setCursor(5, 3);
+          if (recorrido < 1000) {
+          lcd.print("0");
+            if (recorrido < 100) {
+            lcd.print("0");
+              if (recorrido < 10) {
+              lcd.print("0");
+              }
+            }
+          }
   lcd.print(recorrido);
 }
