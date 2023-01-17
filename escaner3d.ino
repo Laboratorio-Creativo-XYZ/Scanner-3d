@@ -10,11 +10,18 @@
 
   https://www.arduino.cc/en/Tutorial/BuiltInExamples/Button
 */
-#include <Servo.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <ezButton.h>
-//#include <WiFi.h>
+#include <AccelStepper.h>
+#include <WiFi.h>
+#include <WiFiAP.h>
+#include <ArduinoJson.h>
+//WiFi param
+const char *ssid = "Escaner3D";
+const char *password = "LaboratorioXYZ";
+WiFiServer server(80);
+
 
 // constants won't change. They're used here to set pin numbers:
 const int Shutter1 = 15;  //In shield 4 
@@ -27,16 +34,15 @@ ezButton leftButton(27); //27
 ezButton rightButton(26); //26
 ezButton playButton(25); //25
 ezButton stopButton(32); //32
-ezButton stopButton2(19); //19
 const int sda = 21; //Pin salida SDA = GPIO 21 (G21)
 const int scl = 22; //Pin salida SCL = GPIO 22 (G22)
 const long interval = 500;//cuanto espera antes de tomar la foto
 const int lcdColumns = 20;//set the LCD number of columns
 const int lcdRows = 4;//set the LCD number of rows
-const long potencia = 2000;//potencia para activar el servo
-const int ServoPin =  13;// the number of the Servo pin
-const int stop = 90; // instruccion para que el servo se detenga
-
+const long potencia = 1000;//potencia para activar el servo
+const int stepPin =  13;
+const int dirPin = 19;
+AccelStepper stepper(1, stepPin, dirPin); // Defaults to AccelStepper::FULL4WIRE (4 pins) on 2, 3, 4, 5
 int numerodefotos = 10;
 int recorridototal = 16250;
 int recorrido = recorridototal / numerodefotos;
@@ -55,123 +61,38 @@ String recorridototalstr = String(recorridototal);
 //aquí terminan
 
 
-byte fotos[] = {
-  B00000,
-  B00010,
-  B11111,
-  B10001,
-  B10101,
-  B10001,
-  B11111,
-  B00000
-};
-
-byte num[] = {
-  B00011,
-  B00011,
-  B00000,
-  B10010,
-  B11010,
-  B10110,
-  B10010,
-  B10010
-};
-/*
-const char* ssid     = "your-ssid";
-const char* password = "your-password";
-
-const char* host = "data.sparkfun.com";
-const char* streamId   = "....................";
-const char* privateKey = "....................";
-
-WiFiServer server(80);
-*/
-Servo servo1;
-
-// variables will change:
-
-
 int buttonStateDec = 0;
 int buttonStateInc = 0;         // variable for reading the pushbutton status
 int buttonStateLeft = 0;
 int buttonStateRight = 0;
 int buttonStatePlay = 0;
 int buttonStateStop = 0;
-int buttonStateStop2 = 0;
-
-//aquí empieza la función ScollText
-void scrollText(int row, String message, int delayTime, int lcdColumns) {
-  for (int i=0; i < lcdColumns; i++) {
-    message = " " + message;  
-  } 
-  message = message + " "; 
-  for (int pos = 0; pos < message.length(); pos++) {
-    lcd.setCursor(0, row);
-    lcd.print(message.substring(pos, pos + lcdColumns));
-    delay(delayTime);
-  }
-}
-//Aquí termina la función ScrollText
-
-/*/Aquí empieza la función waitForMillis
-void waitForMillis(unsigned long millis) {
-  unsigned long start = millis();
-  while (millis() - start < millis) {
-    // Do nothing
-  }
-}
-*///Aquí termina waitForMillis
-
-/*/Aquí empieza la función startScan
-void startScan() {
-      for(int i = 0; i <= numerodefotos; i++){   
-      servo1.write(potencia);
-      delay(paso);
-      servo1.write(stop);
-      delay(interval);
-      digitalWrite(Shutter1, HIGH);
-      delay(100);
-      digitalWrite(Shutter1, LOW);
-      delay(interval);
-          if (buttonStateStop == HIGH){
-    break;     // Button was pressed, stop the loop
-  }
-  delay(5000);
-}
-}
-*///Aquí termina la función startScan
 
 void setup() {
-  Serial.begin(19200);
-//aquí empieza funcion iniciar LCD
+  stepper.setMaxSpeed(500);
+  stepper.setAcceleration(100);
+  Serial.begin(115200);
   lcd.begin(21, 22);                      // initialize the lcd 
-  // Print a message to the LCD.
   lcd.backlight();
-  lcd.setCursor(0, 0);
-  // print static message
-  lcd.print(messageStatic);
-  // print scrolling message
-  scrollText(1, messageToScroll, 500, lcdColumns);
-//aquí termina función iniciar LCD
+  Serial.println();
+  Serial.println("Configuring access point...");
+
+//aquí empieza la función wifi
+  WiFi.softAP(ssid, password);
+  IPAddress myIP = WiFi.softAPIP();
+  Serial.print("AP IP address: ");
+  Serial.println(myIP);
+  server.begin();
+  Serial.println("Server started");
+//aquí termina la funcion wifi
 
 
-  //aquí empieza la función wifi
-  
+lcd.setCursor(10, 0);  // Print a message to the LCD.
+lcd.print(messageStatic); // print static message
+ 
+scrollText(1, messageToScroll, 500, lcdColumns); // print scrolling message
 
-  //aquí termina la funcion wifi
-  
-  servo1.attach(ServoPin);    // initialize Servopin
-
-  /*// initialize the pushbutton pin as an input:
-  pinMode(decButton, INPUT);
-  pinMode(incButton, INPUT);
-  pinMode(leftButton, INPUT);
-  pinMode(rightButton, INPUT);
-  pinMode(playButton, INPUT);
-  pinMode(stopButton, INPUT);
-  pinMode(stopButton2, INPUT);
-*/
-  //Initialize Shutter & Focus Pins
+//Initialize Shutter & Focus Pins
   
   pinMode(Shutter1, OUTPUT);
   pinMode(Focus1, OUTPUT);
@@ -191,52 +112,44 @@ void setup() {
   }
   
 void loop() {
+  WiFiClient client = server.available();   // listen for incoming clients
+    if (client) {
+    // A client has connected
+    Serial.println("Client connected");
+    }
  int recorrido = recorridototal / numerodefotos;
+
   decButton.loop(); // MUST call the loop() function first
     incButton.loop(); // MUST call the loop() function first
       leftButton.loop(); // MUST call the loop() function first
         rightButton.loop(); // MUST call the loop() function first
           playButton.loop(); // MUST call the loop() function first
             stopButton.loop(); // MUST call the loop() function first
-              stopButton2.loop(); // MUST call the loop() function first
 
-/* //empieza wifi dentro del loop
 
-*///termina el wifi dentro del loop
  
   // read the state of the pushbutton value:
   int DecbtnState = decButton.getState();
-  Serial.println(DecbtnState);
-    Serial.println("DEC");
+  //Serial.println(DecbtnState);
+  //Serial.println("DEC");
   int IncbtnState = incButton.getState();
-  Serial.println(IncbtnState);
-   Serial.println("INC");
+  //Serial.println(IncbtnState);
+  //Serial.println("INC");
   int LeftbtnState = leftButton.getState();
-  Serial.println(LeftbtnState);
-   Serial.println("LEFT");
+  //Serial.println(LeftbtnState);
+  //Serial.println("LEFT");
   int RightbtnState = rightButton.getState();
-  Serial.println(RightbtnState);
-   Serial.println("RIGHT");
+  //Serial.println(RightbtnState);
+  //Serial.println("RIGHT");
   int PlaybtnState = playButton.getState();
-  Serial.println(PlaybtnState);
-   Serial.println("PLAY");
+  //Serial.println(PlaybtnState);
+  //Serial.println("PLAY");
   int StopbtnState = stopButton.getState();
-  Serial.println(StopbtnState);
-   Serial.println("STOP");
-  int Stop2btnState = stopButton2.getState();
-  Serial.println(Stop2btnState);
-   Serial.println("STOP2");
+  //Serial.println(StopbtnState);
+  //Serial.println("STOP");
 
-/*
-  buttonStateDec = digitalRead(decButton);
-  buttonStateInc = digitalRead(incButton);
-  buttonStateLeft = digitalRead(leftButton);
-  buttonStateRight = digitalRead(rightButton);
-  buttonStatePlay = digitalRead(playButton);
-  buttonStateStop = digitalRead(stopButton);
-  buttonStateStop2 = digitalRead(stopButton2);
-*/
   if (IncbtnState == 0){
+    Serial.println("INC");
       numerodefotos++;
       delay(300);
       lcd.setCursor(9, 1);
@@ -247,6 +160,7 @@ void loop() {
   }
 
   if (DecbtnState == 0){
+    Serial.println("DEC");
       numerodefotos--;
             if (numerodefotos <= 1) {
               numerodefotos = 1;
@@ -260,11 +174,12 @@ void loop() {
   }
 
   if (LeftbtnState == 0){
-      recorridototal-=10;
+    Serial.println("LEFT");
+      recorridototal-=100;
             if (recorridototal <= 0) {
               recorridototal = 0;
             }
-      delay(300);
+      delay(200);
       lcd.setCursor(5, 2);
         if (recorridototal < 1000) {
           lcd.print("0");
@@ -276,8 +191,9 @@ void loop() {
   }
 
   if (RightbtnState == 0){
-      recorridototal+=10;
-      delay(300);
+    Serial.println("RIGHT");
+      recorridototal+=100;
+      delay(200);
       lcd.setCursor(5, 2);
         if (recorridototal < 1000) {
           lcd.print("0");
@@ -287,13 +203,15 @@ void loop() {
         }
       lcd.print(recorridototal);
   }
-
+  if (StopbtnState == 0){
+        Serial.println("STOP");
+      }
   if (PlaybtnState == 0) {
-    
-      for(int i = 1; i <= numerodefotos; i++){   
-      servo1.write(potencia);
-      delay(recorrido);
-      servo1.write(stop);
+    Serial.println("PLAY");
+      for(int i = 1; i <= numerodefotos; i++){ 
+        Serial.println(i);  
+      stepper.move(recorrido);
+      stepper.runToPosition();
       delay(interval);
       digitalWrite(Shutter1, HIGH);
       delay(100);
