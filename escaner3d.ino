@@ -36,7 +36,7 @@ ezButton playButton(25); //25
 ezButton stopButton(32); //32
 const int sda = 21; //Pin salida SDA = GPIO 21 (G21)
 const int scl = 22; //Pin salida SCL = GPIO 22 (G22)
-const long interval = 500;//cuanto espera antes de tomar la foto
+const long interval = 600;//cuanto espera antes de tomar la foto
 const int lcdColumns = 20;//set the LCD number of columns
 const int lcdRows = 4;//set the LCD number of rows
 const long potencia = 1000;//potencia para activar el servo
@@ -44,7 +44,7 @@ const int stepPin =  13;
 const int dirPin = 19;
 AccelStepper stepper(1, stepPin, dirPin); // Defaults to AccelStepper::FULL4WIRE (4 pins) on 2, 3, 4, 5
 int numerodefotos = 10;
-int recorridototal = 16250;
+int recorridototal = 2700;
 int recorrido = recorridototal / numerodefotos;
 
 LiquidCrystal_I2C lcd(0x27,lcdColumns,lcdRows);  // set the LCD address to 0x27 for a 16 chars and 2 line display
@@ -114,13 +114,23 @@ scrollText(1, messageToScroll, 500, lcdColumns); // print scrolling message
   lcd.setCursor(0, 1);
   lcd.print(nFotos);
   lcd.setCursor(9, 1);
-  lcd.print(numstrFoto);
+  if (numerodefotos < 100) {
+      lcd.print("0");
+  }
+  lcd.print(numerodefotos);
   lcd.setCursor(0, 2);
   lcd.print(tressesenta);
   lcd.setCursor(5, 2);
+    if (recorridototal < 10000) {
+      lcd.print("0");
+  }
   lcd.print(recorridototal);
   lcd.setCursor(5, 3);
   lcd.print(recorrido);
+  lcd.setCursor(13, 1);
+  lcd.print("Now:");
+  lcd.setCursor(17, 1);
+  lcd.print("Rdy");
   }
   
 void loop() {
@@ -165,8 +175,11 @@ void loop() {
       numerodefotos++;
       delay(300);
       lcd.setCursor(9, 1);
+      if (numerodefotos < 100) {
+      lcd.print("0");
         if (numerodefotos < 10) {
         lcd.print("0");
+        }
       }
       lcd.print(numerodefotos);
   }
@@ -179,26 +192,32 @@ void loop() {
             }
       delay(300);
       lcd.setCursor(9, 1);
+      if (numerodefotos < 100) {
+      lcd.print("0");
         if (numerodefotos < 10) {
         lcd.print("0");
+        }
       }
       lcd.print(numerodefotos);
   }
 
   if (LeftbtnState == 0){
     Serial.println("LEFT");
-      recorridototal-=100;
+      recorridototal-=1;
             if (recorridototal <= 0) {
               recorridototal = 0;
             }
       delay(200);
       lcd.setCursor(5, 2);
+      if (recorridototal < 10000) {
+      lcd.print("0");
         if (recorridototal < 1000) {
           lcd.print("0");
             if (recorridototal < 100) {
             lcd.print("0");
               if (recorridototal < 10) {
               lcd.print("0");
+            }
           }
         }
       }
@@ -207,9 +226,11 @@ void loop() {
 
   if (RightbtnState == 0){
     Serial.println("RIGHT");
-      recorridototal+=100;
+      recorridototal+=1;
       delay(200);
       lcd.setCursor(5, 2);
+          if (recorridototal < 10000) {
+          lcd.print("0");
         if (recorridototal < 1000) {
           lcd.print("0");
             if (recorridototal < 100) {
@@ -219,6 +240,7 @@ void loop() {
           }
         }
       }
+    }
       lcd.print(recorridototal);
   }
   if (StopbtnState == 0){
@@ -231,12 +253,20 @@ void loop() {
         digitalWrite(Shutter1, LOW);
         delay(interval);
       for(int i = 1; i <= numerodefotos; i++){ 
+         lcd.setCursor(17, 1);
+                     if (i < 100) {
+            lcd.print("0");
+              if (i < 10) {
+              lcd.print("0");
+          }
+        }
+         lcd.print(i);
       Serial.println(i);  
       stepper.move(recorrido);
       stepper.runToPosition();
       delay(interval);
       digitalWrite(Shutter1, HIGH);
-      delay(100);
+      delay(200);
       digitalWrite(Shutter1, LOW);
       delay(interval);
         stopButton.loop();
@@ -245,8 +275,12 @@ void loop() {
           break;     // Button was pressed, stop the loop
         }
       }
+      lcd.setCursor(17, 1);
+      lcd.print("Rdy");
   }
   lcd.setCursor(5, 3);
+        if (recorrido < 10000) {
+        lcd.print("0");
           if (recorrido < 1000) {
           lcd.print("0");
             if (recorrido < 100) {
@@ -256,5 +290,6 @@ void loop() {
               }
             }
           }
+        }
   lcd.print(recorrido);
 }
